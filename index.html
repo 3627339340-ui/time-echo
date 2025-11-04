@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>未来回音 ✉️</title>
   <style>
-    /* 🌸 全局样式 */
+    /* 🌷 全局样式 */
     body {
       font-family: "ZCOOL XiaoWei", "Noto Serif SC", serif;
-      background: linear-gradient(180deg, #f9f7f3, #f3ede7);
+      background: linear-gradient(180deg, #f8f5f2, #f3eee9);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -24,6 +24,10 @@
       margin-bottom: 20px;
     }
 
+    .container {
+      text-align: center;
+    }
+
     /* ✉️ 信封外观 */
     .envelope {
       width: 320px;
@@ -32,16 +36,9 @@
       position: relative;
       border-radius: 6px;
       box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-      transition: transform 0.6s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-
-    .envelope.opened {
-      transform: translateY(-80px);
+      overflow: hidden;
+      margin: 20px auto;
+      transition: all 0.6s ease;
     }
 
     .flap {
@@ -52,21 +49,17 @@
       height: 60%;
       background: #d7c2a1;
       clip-path: polygon(0 0, 50% 80%, 100% 0);
-      transition: transform 0.8s ease;
       transform-origin: top;
+      transition: transform 0.8s ease;
       z-index: 2;
     }
 
-    .envelope.opened .flap {
-      transform: rotateX(180deg);
-    }
-
-    /* 📜 信纸样式 */
     .letter {
       position: absolute;
       bottom: 0;
       width: 90%;
       height: 80%;
+      left: 5%;
       background: #fffdf8;
       border-radius: 4px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -80,21 +73,32 @@
       z-index: 1;
     }
 
-    .envelope.opened .letter {
-      opacity: 1;
-      transform: translateY(-20px);
+    .envelope.opened {
+      transform: translateY(-60px);
     }
 
+    .envelope.opened .flap {
+      transform: rotateX(180deg);
+    }
+
+    .envelope.opened .letter {
+      opacity: 1;
+      transform: translateY(-10px);
+    }
+
+    /* 📄 输入区 */
     textarea {
       width: 90%;
+      max-width: 500px;
       height: 100px;
       border: 1px solid #d8c9b0;
       border-radius: 6px;
-      padding: 8px;
-      font-size: 14px;
+      padding: 10px;
+      font-size: 15px;
       resize: none;
       outline: none;
       background: #fffaf3;
+      color: #5a4634;
     }
 
     button {
@@ -116,6 +120,7 @@
     #output {
       white-space: pre-wrap;
       line-height: 1.6;
+      text-align: left;
     }
 
     .controls {
@@ -144,12 +149,13 @@
     <h1>未来回音 ✉️</h1>
 
     <textarea id="input" placeholder="写下你想对未来说的话..."></textarea>
+    <br />
     <button id="send">发送给未来</button>
 
     <div class="envelope" id="envelope">
       <div class="flap"></div>
       <div class="letter" id="letter">
-        <div id="output">这里将出现来自未来的回信...</div>
+        <div id="output">来自未来的信件将在这里展开...</div>
         <div class="controls hidden" id="controls">
           <button id="voice">🎧 播放语音</button>
           <button id="close">📩 收起信纸</button>
@@ -167,16 +173,19 @@
     const closeBtn = document.getElementById("close");
     const voiceBtn = document.getElementById("voice");
 
+    let isAnimating = false;
     let speech;
 
     // ✉️ 发送给未来
     sendBtn.addEventListener("click", async () => {
+      if (isAnimating) return;
       const input = inputEl.value.trim();
       if (!input) {
         alert("请先写点什么吧。");
         return;
       }
 
+      isAnimating = true;
       outputEl.textContent = "未来正在回信中...⏳";
       envelope.classList.remove("opened");
       controls.classList.add("hidden");
@@ -190,17 +199,23 @@
 
         const data = await res.json();
         if (data.reply) {
-          outputEl.textContent = data.reply;
+          // 信封展开动画
           setTimeout(() => {
+            outputEl.textContent = data.reply;
             envelope.classList.add("opened");
-            controls.classList.remove("hidden");
             outputEl.classList.add("fade-in");
+            setTimeout(() => {
+              controls.classList.remove("hidden");
+              isAnimating = false;
+            }, 600);
           }, 600);
         } else {
           outputEl.textContent = "未来暂时没法回信，请稍后再试。";
+          isAnimating = false;
         }
       } catch (err) {
         outputEl.textContent = "连接未来出错，请稍后再试。";
+        isAnimating = false;
       }
     });
 
@@ -208,6 +223,8 @@
     closeBtn.addEventListener("click", () => {
       envelope.classList.remove("opened");
       controls.classList.add("hidden");
+      window.speechSynthesis.cancel();
+      speech = null;
     });
 
     // 🎧 播放语音
