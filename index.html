@@ -1,138 +1,175 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
 <html lang="zh">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
-<title>未来回音 ✉️</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{
-  font-family:'PingFang SC','Segoe UI',sans-serif;
-  background:linear-gradient(180deg,#fff8f4 0%,#ffffff 100%);
-  min-height:100vh;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;overflow:hidden;position:relative;
-}
-.dot{position:absolute;border-radius:50%;opacity:.4;filter:blur(60px);animation:float 10s ease-in-out infinite alternate;z-index:0;}
-.dot1{width:240px;height:240px;background:radial-gradient(circle,#ffd6a5,#ffb5a7);top:10%;left:5%;}
-.dot2{width:280px;height:280px;background:radial-gradient(circle,#bde0fe,#caffbf);bottom:5%;right:5%;animation-delay:3s;}
-@keyframes float{from{transform:translateY(0)}to{transform:translateY(-25px)}}
-.envelope{
-  position:relative;width:90%;max-width:640px;height:380px;
-  background:linear-gradient(145deg,#fff3e0,#ffe7eb);
-  border-radius:10px;box-shadow:0 10px 25px rgba(255,190,200,.3);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;overflow:hidden;animation:gentlePulse 3.5s ease-in-out infinite;
-}
-@keyframes gentlePulse{0%,100%{transform:rotate(0deg) scale(1);}25%{transform:rotate(-1deg) scale(1.02);}50%{transform:rotate(1deg) scale(1.02);}75%{transform:rotate(-1deg) scale(1);}}
-.envelope.open{animation:none;cursor:default;}
-.flap{position:absolute;top:0;left:0;width:100%;height:50%;background:linear-gradient(180deg,#ffe8ea 0%,#fff 100%);
-clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform 1s ease-in-out;z-index:2;}
-.envelope.open .flap{transform:rotateX(180deg);}
-.container{position:absolute;bottom:0;width:90%;max-width:600px;background:#fffdfb;border-radius:18px;
-box-shadow:0 6px 18px rgba(0,0,0,.1);padding:24px 20px;z-index:3;}
-h1{text-align:center;font-size:2rem;background:linear-gradient(135deg,#ffb5a7,#bde0fe);
--webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
-.subtitle{text-align:center;color:#666;margin-bottom:20px;}
-textarea{width:100%;min-height:120px;border:2px solid #f0f0f0;border-radius:14px;padding:15px;font-size:16px;background:#fff;
-resize:vertical;transition:.3s;}
-textarea:focus{border-color:#ffb5a7;box-shadow:0 0 6px rgba(255,181,167,.3);outline:none;}
-button{background:linear-gradient(135deg,#ffdac1,#bde0fe);border:none;border-radius:12px;font-size:17px;font-weight:600;
-padding:15px;width:100%;margin-top:10px;cursor:pointer;transition:.3s;color:#333;}
-button:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(255,181,167,.25);}
-#letterOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.96);
-backdrop-filter:blur(5px);display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;z-index:10;animation:fadeIn .8s ease forwards;}
-@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-#futureText{max-width:90%;max-height:85vh;overflow:auto;line-height:1.8;background:#fffaf7;border-left:4px solid #ffd6a5;
-border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,.1);padding:20px;transition:transform 0.5s ease,box-shadow 1s ease;
-text-align:left;white-space:pre-wrap;}
-.playing{animation:glow 2s ease-in-out infinite alternate;}
-@keyframes glow{0%{box-shadow:0 0 10px rgba(255,181,167,0.2);}100%{box-shadow:0 0 25px rgba(255,181,167,0.6);}}
-@media(max-width:480px){#futureText{padding:15px;}}
-</style>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>未来回音 ✉️</title>
   <style>
+    /* 🌸 全局样式 */
     body {
-      font-family: "Segoe UI", sans-serif;
+      font-family: "ZCOOL XiaoWei", "Noto Serif SC", serif;
+      background: linear-gradient(180deg, #f9f7f3, #f3ede7);
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      background: linear-gradient(120deg, #a1c4fd, #c2e9fb);
       margin: 0;
+      overflow: hidden;
     }
+
     h1 {
-      color: #333;
+      text-align: center;
+      font-weight: normal;
+      color: #6b4e3d;
+      margin-bottom: 20px;
     }
+
+    /* ✉️ 信封外观 */
+    .envelope {
+      width: 320px;
+      height: 220px;
+      background: #e8d9c7;
+      position: relative;
+      border-radius: 6px;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: transform 0.6s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .envelope.opened {
+      transform: translateY(-80px);
+    }
+
+    .flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60%;
+      background: #d7c2a1;
+      clip-path: polygon(0 0, 50% 80%, 100% 0);
+      transition: transform 0.8s ease;
+      transform-origin: top;
+      z-index: 2;
+    }
+
+    .envelope.opened .flap {
+      transform: rotateX(180deg);
+    }
+
+    /* 📜 信纸样式 */
+    .letter {
+      position: absolute;
+      bottom: 0;
+      width: 90%;
+      height: 80%;
+      background: #fffdf8;
+      border-radius: 4px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 16px;
+      overflow-y: auto;
+      transition: all 0.8s ease;
+      opacity: 0;
+      transform: translateY(50%);
+      font-size: 15px;
+      color: #5a4634;
+      z-index: 1;
+    }
+
+    .envelope.opened .letter {
+      opacity: 1;
+      transform: translateY(-20px);
+    }
+
     textarea {
       width: 90%;
-      max-width: 500px;
-      height: 120px;
-      margin: 12px 0;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-      outline: none;
+      height: 100px;
+      border: 1px solid #d8c9b0;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 14px;
       resize: none;
+      outline: none;
+      background: #fffaf3;
     }
+
     button {
-      background: #4e73df;
+      background: #c9a27e;
       color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
       border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 16px;
+      transition: background 0.3s;
+      font-size: 15px;
+      margin-top: 10px;
     }
+
     button:hover {
-      background: #2e59d9;
+      background: #b68965;
     }
+
     #output {
-      margin-top: 20px;
-      width: 90%;
-      max-width: 500px;
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .fade-in {
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-<div class="dot dot1"></div>
-<div class="dot dot2"></div>
-  <h1>未来回音 ✉️</h1>
-  <textarea id="input" placeholder="写下你想对未来说的话..."></textarea>
-  <button id="send">发送给未来</button>
-  <div id="output"></div>
+  <div class="container">
+    <h1>未来回音 ✉️</h1>
 
-<div class="envelope" id="envelope" onclick="openEnvelope()">
-  <div class="flap"></div>
-  <div class="container" id="letterContainer">
-    <h1>未来回音</h1>
-    <p class="subtitle">写下此刻的心声，遇见未来的自己 💌</p>
-    <textarea id="userInput" placeholder="写下你的想法、困惑或愿望..."></textarea>
-    <button id="generateBtn" onclick="generateCapsule()">✨ 生成未来回音</button>
-    <div id="loading" style="display:none;text-align:center;margin-top:20px;color:#888;">🤖 AI 正在构思来自未来的信件...</div>
+    <textarea id="input" placeholder="写下你想对未来说的话..."></textarea>
+    <button id="send">发送给未来</button>
+
+    <div class="envelope" id="envelope">
+      <div class="flap"></div>
+      <div class="letter" id="letter">
+        <div id="output">这里将出现来自未来的回信...</div>
+        <div class="controls hidden" id="controls">
+          <button id="voice">🎧 播放语音</button>
+          <button id="close">📩 收起信纸</button>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+
   <script>
     const sendBtn = document.getElementById("send");
     const inputEl = document.getElementById("input");
     const outputEl = document.getElementById("output");
+    const envelope = document.getElementById("envelope");
+    const controls = document.getElementById("controls");
+    const closeBtn = document.getElementById("close");
+    const voiceBtn = document.getElementById("voice");
 
-<div id="letterOverlay">
-  <p id="futureText"></p>
-  <div style="margin-top:20px;display:flex;gap:10px;">
-    <button onclick="playVoice()">▶️ 播放语音</button>
-    <button onclick="closeLetter()">📩 收回信纸</button>
-  </div>
-</div>
+    let speech;
+
+    // ✉️ 发送给未来
     sendBtn.addEventListener("click", async () => {
       const input = inputEl.value.trim();
       if (!input) {
@@ -140,19 +177,10 @@ text-align:left;white-space:pre-wrap;}
         return;
       }
 
-<script>
-let opened=false,currentVoiceText='',utter=null;
-function openEnvelope(){if(opened)return;document.getElementById('envelope').classList.add('open');opened=true;}
-async function generateCapsule(){
-  const input=document.getElementById('userInput').value.trim();
-  if(!input)return alert('请先写下一些内容吧！');
-  const btn=document.getElementById('generateBtn');
-  const loading=document.getElementById('loading');
-  const letterOverlay=document.getElementById('letterOverlay');
-  const textBox=document.getElementById('futureText');
       outputEl.textContent = "未来正在回信中...⏳";
+      envelope.classList.remove("opened");
+      controls.classList.add("hidden");
 
-  btn.disabled=true;loading.style.display='block';
       try {
         const res = await fetch("/api/generate", {
           method: "POST",
@@ -160,33 +188,52 @@ async function generateCapsule(){
           body: JSON.stringify({ input })
         });
 
-  try{
-    const res=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({input})});
-    const data=await res.json();
-    const letter=data.reply||"未来还没来得及回信，请稍后再试。";
-    textBox.textContent=letter;currentVoiceText=letter;
-    autoFitFont(textBox);
-    loading.style.display='none';
-    letterOverlay.style.display='flex';
-    openEnvelope();
-  }catch(e){alert("AI生成失败："+e.message);}finally{btn.disabled=false;}
-}
-function autoFitFont(el){let fontSize=18;el.style.fontSize=fontSize+'px';while(el.scrollHeight>window.innerHeight*0.8&&fontSize>12){fontSize--;el.style.fontSize=fontSize+'px';}}
-function closeLetter(){stopVoice();document.getElementById('letterOverlay').style.display='none';}
-function playVoice(){if(!currentVoiceText)return;stopVoice();if(!('speechSynthesis'in window)){alert('此设备暂不支持语音合成');return;}
-utter=new SpeechSynthesisUtterance(currentVoiceText);utter.lang='zh-CN';utter.rate=0.93;utter.pitch=1.0;
-const textBox=document.getElementById('futureText');textBox.classList.add('playing');utter.onend=()=>textBox.classList.remove('playing');speechSynthesis.speak(utter);}
-function stopVoice(){if('speechSynthesis'in window)speechSynthesis.cancel();document.getElementById('futureText').classList.remove('playing');}
-</script>
         const data = await res.json();
         if (data.reply) {
           outputEl.textContent = data.reply;
+          setTimeout(() => {
+            envelope.classList.add("opened");
+            controls.classList.remove("hidden");
+            outputEl.classList.add("fade-in");
+          }, 600);
         } else {
           outputEl.textContent = "未来暂时没法回信，请稍后再试。";
         }
       } catch (err) {
         outputEl.textContent = "连接未来出错，请稍后再试。";
       }
+    });
+
+    // 📩 收起信纸
+    closeBtn.addEventListener("click", () => {
+      envelope.classList.remove("opened");
+      controls.classList.add("hidden");
+    });
+
+    // 🎧 播放语音
+    voiceBtn.addEventListener("click", () => {
+      if (speech) {
+        window.speechSynthesis.cancel();
+        speech = null;
+        voiceBtn.textContent = "🎧 播放语音";
+        return;
+      }
+
+      const text = outputEl.textContent;
+      if (!text) return;
+
+      speech = new SpeechSynthesisUtterance(text);
+      speech.lang = "zh-CN";
+      speech.pitch = 1.05;
+      speech.rate = 0.95;
+      speech.volume = 1;
+      speech.onend = () => {
+        speech = null;
+        voiceBtn.textContent = "🎧 播放语音";
+      };
+
+      voiceBtn.textContent = "⏸ 停止播放";
+      window.speechSynthesis.speak(speech);
     });
   </script>
 </body>
