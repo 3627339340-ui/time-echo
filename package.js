@@ -1,0 +1,12 @@
+{
+  "name": "future-echo",
+  "version": "1.0.0",
+  "description": "未来回音 - 智谱AI信件生成器",
+  "main": "index.html",
+  "scripts": {
+    "start": "node api/generate.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
