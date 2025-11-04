@@ -1,240 +1,181 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
-<title>未来回音</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{
-  font-family:'PingFang SC','Segoe UI',sans-serif;
-  background:linear-gradient(180deg,#fff8f4 0%,#ffffff 100%);
-  min-height:100vh;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  overflow:hidden;
-  position:relative;
-}
-.dot{position:absolute;border-radius:50%;opacity:.4;filter:blur(60px);animation:float 10s ease-in-out infinite alternate;z-index:0;}
-.dot1{width:240px;height:240px;background:radial-gradient(circle,#ffd6a5,#ffb5a7);top:10%;left:5%;}
-.dot2{width:280px;height:280px;background:radial-gradient(circle,#bde0fe,#caffbf);bottom:5%;right:5%;animation-delay:3s;}
-@keyframes float{from{transform:translateY(0)}to{transform:translateY(-25px)}}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>未来回音 💌</title>
+    <style>
+      body {
+        font-family: "Noto Serif SC", "PingFang SC", "Segoe UI", serif;
+        background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        overflow-x: hidden;
+      }
 
-/* 信封外观 */
-.envelope{
-  position:relative;width:90%;max-width:640px;height:380px;
-  background:linear-gradient(145deg,#fff3e0,#ffe7eb);
-  border-radius:10px;box-shadow:0 10px 25px rgba(255,190,200,.3);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;overflow:hidden;animation:gentlePulse 3.5s ease-in-out infinite;
-}
-@keyframes gentlePulse{
-  0%,100%{transform:rotate(0deg) scale(1);}
-  25%{transform:rotate(-1deg) scale(1.02);}
-  50%{transform:rotate(1deg) scale(1.02);}
-  75%{transform:rotate(-1deg) scale(1);}
-}
-.envelope.open{animation:none;cursor:default;}
-.flap{
-  position:absolute;top:0;left:0;width:100%;height:50%;
-  background:linear-gradient(180deg,#ffe8ea 0%,#fff 100%);
-  clip-path:polygon(0 0,100% 0,50% 100%);
-  transform-origin:top;
-  transition:transform 1s ease-in-out;
-  z-index:2;
-}
-.envelope.open .flap{transform:rotateX(180deg);}
+      h1 {
+        color: #333;
+        font-size: 2em;
+        margin-bottom: 6px;
+        text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.6);
+      }
 
-/* 信纸容器 */
-.container{
-  position:absolute;bottom:0;
-  width:90%;max-width:600px;
-  background:#fffdfb;border-radius:18px;
-  box-shadow:0 6px 18px rgba(0,0,0,.1);
-  padding:24px 20px;z-index:3;
-}
-h1{text-align:center;font-size:2rem;
-  background:linear-gradient(135deg,#ffb5a7,#bde0fe);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
-.subtitle{text-align:center;color:#666;margin-bottom:20px;}
+      p {
+        color: #555;
+        margin-bottom: 20px;
+      }
 
-textarea{
-  width:100%;min-height:120px;border:2px solid #f0f0f0;
-  border-radius:14px;padding:15px;font-size:16px;background:#fff;
-  resize:vertical;transition:.3s;
-}
-textarea:focus{border-color:#ffb5a7;box-shadow:0 0 6px rgba(255,181,167,.3);outline:none;}
-button{
-  background:linear-gradient(135deg,#ffdac1,#bde0fe);
-  border:none;border-radius:12px;font-size:17px;font-weight:600;
-  padding:15px;width:100%;margin-top:10px;cursor:pointer;
-  transition:.3s;color:#333;
-}
-button:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(255,181,167,.25);}
+      textarea {
+        width: 90%;
+        max-width: 500px;
+        height: 120px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        font-size: 1em;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        transition: 0.3s;
+      }
 
-/* 信纸展示层 */
-#letterOverlay{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(255,255,255,0.96);
-  backdrop-filter:blur(5px);
-  display:none;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:20px;
-  z-index:10;
-  animation:fadeIn .8s ease forwards;
-}
-@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-#futureText{
-  max-width:90%;
-  max-height:85vh;
-  overflow:auto;
-  line-height:1.8;
-  background:#fffaf7;
-  border-left:4px solid #ffd6a5;
-  border-radius:16px;
-  box-shadow:0 8px 25px rgba(0,0,0,.1);
-  padding:20px;
-  transition:transform 0.5s ease,box-shadow 1s ease;
-  text-align:left;
-  white-space:pre-wrap;
-}
-.playing{animation:glow 2s ease-in-out infinite alternate;}
-@keyframes glow{
-  0%{box-shadow:0 0 10px rgba(255,181,167,0.2);}
-  100%{box-shadow:0 0 25px rgba(255,181,167,0.6);}
-}
+      textarea:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+        outline: none;
+      }
 
-@media(max-width:480px){
-  #futureText{padding:15px;}
-}
-</style>
-</head>
-<body>
-<div class="dot dot1"></div>
-<div class="dot dot2"></div>
+      button {
+        margin-top: 12px;
+        padding: 10px 24px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: 0.2s;
+      }
 
-<div class="envelope" id="envelope" onclick="openEnvelope()">
-  <div class="flap"></div>
+      button:hover {
+        background: #0056d2;
+      }
 
-  <div class="container" id="letterContainer">
-    <h1>未来回音</h1>
-    <p class="subtitle">写下此刻的心声，遇见未来的自己 💌</p >
+      #loading {
+        margin-top: 20px;
+        color: #666;
+        font-size: 0.95em;
+      }
 
-    <textarea id="userInput" placeholder="写下你的想法、困惑或愿望..."></textarea>
-    <button id="generateBtn" onclick="generateCapsule()">✨ 生成未来回音</button>
+      #letter {
+        margin-top: 20px;
+        background: #fffef9;
+        padding: 20px;
+        border-radius: 16px;
+        max-width: 600px;
+        line-height: 1.7;
+        white-space: pre-wrap;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        transition: all 0.6s ease;
+        transform-origin: top;
+        overflow: hidden;
+      }
 
-    <div id="loading" style="display:none;text-align:center;margin-top:20px;color:#888;">🤖 AI 正在构思来自未来的信件...</div>
-  </div>
-</div>
+      #letter.folded {
+        max-height: 0;
+        opacity: 0;
+        padding: 0;
+        margin-top: 0;
+      }
 
-<div id="letterOverlay">
-  <p id="futureText"></p >
-  <div style="margin-top:20px;display:flex;gap:10px;">
-    <button onclick="playVoice()">▶️ 播放语音</button>
-    <button onclick="closeLetter()">📩 收回信纸</button>
-  </div>
-</div>
+      .controls {
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+      }
 
-<script>
-let opened=false,currentVoiceText='',utter=null;
+      .controls button {
+        background: #f3f3f3;
+        color: #333;
+        border: 1px solid #ddd;
+      }
 
-function openEnvelope(){
-  if(opened)return;
-  document.getElementById('envelope').classList.add('open');
-  opened=true;
-}
+      .controls button:hover {
+        background: #e6e6e6;
+      }
+    </style>
+  </head>
 
-/* ---- 智能内容生成：整合增强版逻辑 ---- */
-function generateDynamicLetter(input){
-  const today=new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
-  const topics={
-    work:['工作','职场','就业','迷茫','实习','加班','升职','同事','上司','职业规划','跳槽'],
-    study:['学习','考试','成绩','考研','成长','知识','读书','教育','课程','专业'],
-    love:['爱情','恋爱','喜欢','分手','他','她','心动','感情','婚姻','伴侣'],
-    family:['家庭','父母','家人','亲情','孩子','沟通','父亲','母亲','兄弟姐妹'],
-    friend:['朋友','友情','孤独','误会','信任','社交','人际','知己','伙伴'],
-    future:['未来','梦想','希望','理想','方向','目标','前途','规划'],
-    mood:['焦虑','情绪','难过','失落','抑郁','低落','烦恼','忧愁'],
-    self:['自我','人生','意义','成长','信念','选择','价值','内心']
-  };
+  <body>
+    <h1>未来回音 💌</h1>
+    <p>写下此刻的心声，让未来的自己温柔回应</p>
 
-  let matchKeys=[];
-  for(const key in topics){
-    if(topics[key].some(k=>input.includes(k))) matchKeys.push(key);
-  }
+    <textarea id="userInput" placeholder="写下你的想法..."></textarea>
+    <button onclick="generateLetter()">✨ 生成未来回音</button>
 
-  let letter=`亲爱的自己：\n\n今天，当我看到你写下“${input}”时，我仿佛能触摸到你此刻的情绪。或许有些不安，有些期待，也有些思考。别忘了，正是这些复杂的情绪，构成了真实而鲜活的你。\n\n`;
+    <div id="loading" style="display:none;">🤖 AI 正在构思中，请稍候...</div>
 
-  if(matchKeys.includes('work')) letter+=`关于工作的迷茫，请不要急于给自己定答案。成长的路上，每一次不确定都是新的起点。未来的你，会感激现在努力思考的自己。请相信，脚下的路正在慢慢变亮。\n\n`;
-  if(matchKeys.includes('study')) letter+=`在学习的旅程中，请记住：分数并不是唯一的价值。每一次理解、每一次顿悟，都是你思想的跃迁。即使前路漫长，也请带着热爱继续前行。\n\n`;
-  if(matchKeys.includes('love')) letter+=`关于爱情，请温柔地相信。你值得被爱，也值得爱人。无论甜蜜还是遗憾，它们都让你更懂得何为真心。未来的某天，当你再次心动时，你会感谢现在仍愿意相信爱的自己。\n\n`;
-  if(matchKeys.includes('family')) letter+=`家人的关怀或许不常说出口，但那份牵挂从未远离。请抽时间去表达爱，因为“我爱你”永远不会嫌多。\n\n`;
-  if(matchKeys.includes('friend')) letter+=`友情有时淡如水，却最能解渴。别怕失去某些人，因为每段关系的结束都意味着新的缘分即将开始。\n\n`;
-  if(matchKeys.includes('future')) letter+=`关于未来，不必惶恐。它并非遥不可及的梦，而是你每天积累的小小勇气。那些你今天的努力，都会成为未来的温柔回响。\n\n`;
-  if(matchKeys.includes('mood')) letter+=`情绪起伏并不代表你失败了，而是说明你仍然热爱生活。哪怕暂时陷入低谷，也请记住：情绪会流走，而你的本质始终温柔而坚定。\n\n`;
-  if(matchKeys.includes('self')) letter+=`你不必成为所有人期待的样子。人生的意义，从来不在别人的目光中，而在你如何看待自己。允许自己不完美，这样你才更像人，更值得被爱。\n\n`;
-  if(matchKeys.length===0) letter+=`我感受到你在思考，却还找不到确切的方向。没关系——困惑本身，就是灵魂在成长。请珍惜这段与自己的对话，它会在未来发出光。\n\n`;
+    <div id="letter" class="folded"></div>
 
-  letter+=`无论你正在经历什么，请相信——时间会温柔地回答所有疑问。\n\n未来的你，也许正在微笑着读这封信，对现在的你充满感激。\n\n未来的你\n${today}`;
-  return letter;
-}
+    <div class="controls" style="display:none;" id="controls">
+      <button onclick="toggleLetter()">📜 收起信纸</button>
+      <button onclick="playVoice()">🔊 语音播放</button>
+    </div>
 
-/* 自动字体调节 */
-function autoFitFont(el){
-  let fontSize=18;
-  el.style.fontSize=fontSize+'px';
-  while(el.scrollHeight>window.innerHeight*0.8 && fontSize>12){
-    fontSize--;el.style.fontSize=fontSize+'px';
-  }
-}
+    <script>
+      let currentReply = "";
 
-/* 生成未来回音 */
-async function generateCapsule(){
-  const input=document.getElementById('userInput').value.trim();
-  if(!input)return alert('请先写下一些内容吧！');
-  const btn=document.getElementById('generateBtn');
-  const loading=document.getElementById('loading');
-  const letterOverlay=document.getElementById('letterOverlay');
-  const textBox=document.getElementById('futureText');
+      async function generateLetter() {
+        const input = document.getElementById("userInput").value.trim();
+        if (!input) return alert("请先写点内容再生成哦～");
 
-  btn.disabled=true;loading.style.display='block';
-  await new Promise(r=>setTimeout(r,1200));
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("letter").classList.add("folded");
+        document.getElementById("controls").style.display = "none";
 
-  const letter=generateDynamicLetter(input);
-  textBox.textContent=letter;
-  currentVoiceText=letter;
+        try {
+          // ✅ 修改为你的 Zeabur 部署 API 地址
+          const apiURL = "/api/generate";
 
-  autoFitFont(textBox);
-  loading.style.display='none';
-  letterOverlay.style.display='flex';
-  btn.disabled=false;
-  openEnvelope();
-}
+          const res = await fetch(apiURL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ input }),
+          });
+          const data = await res.json();
 
-/* 关闭信纸 */
-function closeLetter(){
-  stopVoice();
-  document.getElementById('letterOverlay').style.display='none';
-}
+          currentReply = data.reply || "未来暂时还没来得及回信。";
 
-/* 语音功能 */
-function playVoice(){
-  if(!currentVoiceText)return;
-  stopVoice();
-  if(!('speechSynthesis' in window)){alert('此设备暂不支持语音合成');return;}
-  utter=new SpeechSynthesisUtterance(currentVoiceText);
-  utter.lang='zh-CN';utter.rate=0.93;utter.pitch=1.0;
-  const textBox=document.getElementById('futureText');
-  textBox.classList.add('playing');
-  utter.onend=()=>textBox.classList.remove('playing');
-  speechSynthesis.speak(utter);
-}
-function stopVoice(){
-  if('speechSynthesis' in window)speechSynthesis.cancel();
-  document.getElementById('futureText').classList.remove('playing');
-}
-</script>
-</body>
+          const letter = document.getElementById("letter");
+          letter.innerText = currentReply;
+          letter.classList.remove("folded");
+
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("controls").style.display = "flex";
+        } catch (err) {
+          document.getElementById("loading").style.display = "none";
+          alert("调用失败，请稍后再试。");
+        }
+      }
+
+      function toggleLetter() {
+        const letter = document.getElementById("letter");
+        letter.classList.toggle("folded");
+      }
+
+      function playVoice() {
+        if (!currentReply) return alert("请先生成信件哦～");
+
+        const utterance = new SpeechSynthesisUtterance(currentReply);
+        utterance.lang = "zh-CN";
+        utterance.rate = 1.05;
+        utterance.pitch = 1;
+        speechSynthesis.speak(utterance);
+      }
+    </script>
+  </body>
 </html>
+
