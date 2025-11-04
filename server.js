@@ -9,15 +9,13 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(express.json());
 
-// 提供静态网页
+// 提供前端网页
 app.use(express.static(__dirname));
 
-// 智谱 AI 接口
+// 智谱AI接口
 app.post("/api/generate", async (req, res) => {
   const { input } = req.body;
-  if (!input) {
-    return res.status(400).json({ error: "输入内容不能为空" });
-  }
+  if (!input) return res.status(400).json({ error: "输入内容不能为空" });
 
   try {
     const ZHIPU_API_KEY = process.env.ZHIPU_API_KEY;
@@ -40,21 +38,13 @@ app.post("/api/generate", async (req, res) => {
       }
     );
 
-    const reply =
-      response.data?.choices?.[0]?.message?.content ||
-      "未来还没来得及回信，请稍后再试。";
-
+    const reply = response.data.choices?.[0]?.message?.content || "未来还没来得及回信，请稍后再试。";
     res.json({ reply });
   } catch (err) {
     console.error("AI调用失败：", err.message);
-    res.status(500).json({
-      error: "AI接口调用失败",
-      details: err.message
-    });
+    res.status(500).json({ error: "AI接口调用失败", details: err.message });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ 未来回音服务已启动，端口 ${PORT}`);
-});
+app.listen(PORT, () => console.log(`✅ 未来回音服务已启动，端口 ${PORT}`));
