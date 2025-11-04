@@ -1,181 +1,96 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>未来回音 💌</title>
-    <style>
-      body {
-        font-family: "Noto Serif SC", "PingFang SC", "Segoe UI", serif;
-        background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        overflow-x: hidden;
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>未来回音 ✉️</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(120deg, #a1c4fd, #c2e9fb);
+      margin: 0;
+    }
+    h1 {
+      color: #333;
+    }
+    textarea {
+      width: 90%;
+      max-width: 500px;
+      height: 120px;
+      margin: 12px 0;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+      resize: none;
+    }
+    button {
+      background: #4e73df;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #2e59d9;
+    }
+    #output {
+      margin-top: 20px;
+      width: 90%;
+      max-width: 500px;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>未来回音 ✉️</h1>
+  <textarea id="input" placeholder="写下你想对未来说的话..."></textarea>
+  <button id="send">发送给未来</button>
+  <div id="output"></div>
+
+  <script>
+    const sendBtn = document.getElementById("send");
+    const inputEl = document.getElementById("input");
+    const outputEl = document.getElementById("output");
+
+    sendBtn.addEventListener("click", async () => {
+      const input = inputEl.value.trim();
+      if (!input) {
+        alert("请先写点什么吧。");
+        return;
       }
 
-      h1 {
-        color: #333;
-        font-size: 2em;
-        margin-bottom: 6px;
-        text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.6);
-      }
+      outputEl.textContent = "未来正在回信中...⏳";
 
-      p {
-        color: #555;
-        margin-bottom: 20px;
-      }
+      try {
+        const res = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ input })
+        });
 
-      textarea {
-        width: 90%;
-        max-width: 500px;
-        height: 120px;
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        padding: 10px;
-        font-size: 1em;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-        transition: 0.3s;
-      }
-
-      textarea:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
-        outline: none;
-      }
-
-      button {
-        margin-top: 12px;
-        padding: 10px 24px;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 1em;
-        transition: 0.2s;
-      }
-
-      button:hover {
-        background: #0056d2;
-      }
-
-      #loading {
-        margin-top: 20px;
-        color: #666;
-        font-size: 0.95em;
-      }
-
-      #letter {
-        margin-top: 20px;
-        background: #fffef9;
-        padding: 20px;
-        border-radius: 16px;
-        max-width: 600px;
-        line-height: 1.7;
-        white-space: pre-wrap;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-        transition: all 0.6s ease;
-        transform-origin: top;
-        overflow: hidden;
-      }
-
-      #letter.folded {
-        max-height: 0;
-        opacity: 0;
-        padding: 0;
-        margin-top: 0;
-      }
-
-      .controls {
-        margin-top: 15px;
-        display: flex;
-        justify-content: center;
-        gap: 12px;
-      }
-
-      .controls button {
-        background: #f3f3f3;
-        color: #333;
-        border: 1px solid #ddd;
-      }
-
-      .controls button:hover {
-        background: #e6e6e6;
-      }
-    </style>
-  </head>
-
-  <body>
-    <h1>未来回音 💌</h1>
-    <p>写下此刻的心声，让未来的自己温柔回应</p>
-
-    <textarea id="userInput" placeholder="写下你的想法..."></textarea>
-    <button onclick="generateLetter()">✨ 生成未来回音</button>
-
-    <div id="loading" style="display:none;">🤖 AI 正在构思中，请稍候...</div>
-
-    <div id="letter" class="folded"></div>
-
-    <div class="controls" style="display:none;" id="controls">
-      <button onclick="toggleLetter()">📜 收起信纸</button>
-      <button onclick="playVoice()">🔊 语音播放</button>
-    </div>
-
-    <script>
-      let currentReply = "";
-
-      async function generateLetter() {
-        const input = document.getElementById("userInput").value.trim();
-        if (!input) return alert("请先写点内容再生成哦～");
-
-        document.getElementById("loading").style.display = "block";
-        document.getElementById("letter").classList.add("folded");
-        document.getElementById("controls").style.display = "none";
-
-        try {
-          // ✅ 修改为你的 Zeabur 部署 API 地址
-          const apiURL = "/api/generate";
-
-          const res = await fetch(apiURL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ input }),
-          });
-          const data = await res.json();
-
-          currentReply = data.reply || "未来暂时还没来得及回信。";
-
-          const letter = document.getElementById("letter");
-          letter.innerText = currentReply;
-          letter.classList.remove("folded");
-
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("controls").style.display = "flex";
-        } catch (err) {
-          document.getElementById("loading").style.display = "none";
-          alert("调用失败，请稍后再试。");
+        const data = await res.json();
+        if (data.reply) {
+          outputEl.textContent = data.reply;
+        } else {
+          outputEl.textContent = "未来暂时没法回信，请稍后再试。";
         }
+      } catch (err) {
+        outputEl.textContent = "连接未来出错，请稍后再试。";
       }
-
-      function toggleLetter() {
-        const letter = document.getElementById("letter");
-        letter.classList.toggle("folded");
-      }
-
-      function playVoice() {
-        if (!currentReply) return alert("请先生成信件哦～");
-
-        const utterance = new SpeechSynthesisUtterance(currentReply);
-        utterance.lang = "zh-CN";
-        utterance.rate = 1.05;
-        utterance.pitch = 1;
-        speechSynthesis.speak(utterance);
-      }
-    </script>
-  </body>
+    });
+  </script>
+</body>
 </html>
-
